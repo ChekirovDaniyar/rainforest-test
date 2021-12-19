@@ -1,0 +1,49 @@
+.wrapper {
+  background-color: #fff;
+  box-shadow: 0 3px 10px 0 rgba(34, 60, 80, 0.2);
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  min-width: 700px;
+  .content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 700px;
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  .picker {
+    position: relative;
+    .angles {
+      width: calc(100% - 35px);
+      position: absolute;
+      top: 18px;
+      left: 15px;
+      display: flex;
+      justify-content: space-between;
+      z-index: 10;
+      img {
+        width: 20px;
+        cursor: pointer;
+      }
+    }
+  }
+  .range {
+    padding: 10px;
+  }
+  .fastSelect {
+    height: 100%;
+    border-left: 1px solid #b6bbcd;
+    ul {
+      padding: 10px 25px 10px 15px;
+    }
+    li {
+      text-align: left;
+      padding: 10px 0;
+      cursor: pointer;
+      user-select: none;
+    }
+  }
+}

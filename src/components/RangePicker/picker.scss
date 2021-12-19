@@ -1,0 +1,39 @@
+.range {
+  .DayPicker-NavBar {
+    display: none;
+  }
+  .DayPicker-Caption {
+    text-align: center !important;
+  }
+  .DayPicker-Day {
+    width: 35px !important;
+    height: 35px !important;
+    padding: 5px !important;
+    box-sizing: border-box !important;
+  }
+  .DayPicker-Day--start, .DayPicker-Day--end {
+    &:not(.DayPicker-Day--outside) {
+      border-radius: 2px !important;
+      background-color: #f39c15 !important;
+      color: #fff;
+      z-index: 20 !important;
+    }
+  }
+  .DayPicker-Day--selected {
+    position: relative !important;
+    z-index: 10 !important;
+    &:not(.DayPicker-Day--start):not(.DayPicker-Day--end):not(.DayPicker-Day--outside) {
+      background-color: transparent !important;
+      &:after {
+        content: "";
+        position: absolute !important;
+        height: 50%;
+        left: 0;
+        top: 25%;
+        width: 100%;
+        background-color: #f6bc5f;
+        z-index: -2;
+      }
+    }
+  }
+}
