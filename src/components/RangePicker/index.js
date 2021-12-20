@@ -1,7 +1,7 @@
 import * as React from 'react';
 import moment from "moment";
 import DayPicker, { DateUtils } from "react-day-picker";
-import AngleSingleLeft from '../../assets/ic_angle-left.svg'
+import { ReactComponent as AngleSingleLeft } from '../../assets/ic_angle-left.svg'
 import AngleDoubleLeft from '../../assets/ic_angle_double_left.svg';
 import AngleSingleRight from '../../assets/ic_angle-right.svg'
 import AngleDoubleRight from '../../assets/ic_angle_double_right.svg';
@@ -10,9 +10,10 @@ import styles from './styles.module.scss';
 import './picker.scss';
 
 
-const RangePicker = ( { date, setDate, rangeRef, nextMonth, previousMonth }) => {
+const RangePicker = ( { date, setDate, rangeRef, setRef, nextMonth, previousMonth }) => {
   const selectedDays = [date.from, { from: date.from, to: date.enteredTo }];
   const modifiers = { start: date.from, end: date.enteredTo };
+  const lifeTime = moment('04.04.2017').toDate();
 
   const isSelectingFirstDay = (from, to, day) => {
     const isBeforeFirstDay = from && DateUtils.isDayBefore(day, from);
@@ -59,7 +60,19 @@ const RangePicker = ( { date, setDate, rangeRef, nextMonth, previousMonth }) => 
   };
 
   const setToday = () => {
-    dayClick(moment().toDate(), modifiers);
+    setDate({
+      from: moment().toDate(),
+      to: moment().toDate(),
+      enteredTo: moment().toDate(),
+    })
+  };
+
+  const setYesterday = () => {
+    setDate({
+      from: moment().subtract(1, 'days').toDate(),
+      to: moment().subtract(1, 'days').toDate(),
+      enteredTo: moment().subtract(1, 'days').toDate(),
+    })
   };
 
   const setRange = (days) => () => {
@@ -89,11 +102,11 @@ const RangePicker = ( { date, setDate, rangeRef, nextMonth, previousMonth }) => 
   };
 
   const nextYear = () => {
-    rangeRef.current && rangeRef.current.showNextYear();
+    rangeRef && rangeRef.showNextYear();
   };
 
   const previousYear = () => {
-    rangeRef.current && rangeRef.current.showPreviousYear();
+    rangeRef && rangeRef.showPreviousYear();
   };
 
   return (
@@ -102,7 +115,9 @@ const RangePicker = ( { date, setDate, rangeRef, nextMonth, previousMonth }) => 
         <div className={styles.picker}>
           <div className={styles.angles}>
             <div>
-              <img onClick={previousMonth} src={AngleSingleLeft} alt="angle" />
+              <AngleSingleLeft
+                onClick={previousMonth}
+              />
               <img onClick={previousYear} src={AngleDoubleLeft} alt="angle" />
             </div>
             <div>
@@ -111,7 +126,7 @@ const RangePicker = ( { date, setDate, rangeRef, nextMonth, previousMonth }) => 
             </div>
           </div>
           <DayPicker
-            ref={rangeRef}
+            ref={ref => setRef(ref)}
             className="range"
             selectedDays={selectedDays}
             onDayClick={(day, modifiers) => dayClick(day, modifiers)}
@@ -120,16 +135,16 @@ const RangePicker = ( { date, setDate, rangeRef, nextMonth, previousMonth }) => 
             numberOfMonths={2}
             disabledDays={{
               after: moment().toDate(),
-              before: moment('04.04.2017').toDate()
+              before: lifeTime,
             }}
           />
         </div>
         <div className={styles.fastSelect}>
           <ul>
             <li onClick={setToday}>Today</li>
-            <li onClick={setRange(1)}>Yesterday</li>
-            <li onClick={setRange(7)}>Last 7 days</li>
-            <li onClick={setRange(30)}>Last 30 days</li>
+            <li onClick={setYesterday}>Yesterday</li>
+            <li onClick={setRange(6)}>Last 7 days</li>
+            <li onClick={setRange(29)}>Last 30 days</li>
             <li onClick={setLastRange('month')}>Last Month</li>
             <li onClick={setLastRange('year')}>This Year</li>
             <li onClick={setLifetime}>Lifetime</li>

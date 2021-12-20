@@ -27,9 +27,9 @@
       &:after {
         content: "";
         position: absolute !important;
-        height: 50%;
+        height: 100%;
         left: 0;
-        top: 25%;
+        top: 0;
         width: 100%;
         background-color: #f6bc5f;
         z-index: -2;
