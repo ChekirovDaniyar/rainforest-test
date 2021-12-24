@@ -11,18 +11,23 @@
     padding: 5px !important;
     box-sizing: border-box !important;
   }
+  .DayPicker-Day--disabled {
+    cursor: not-allowed;
+  }
   .DayPicker-Day--start, .DayPicker-Day--end {
-    &:not(.DayPicker-Day--outside) {
-      border-radius: 2px !important;
-      background-color: #f39c15 !important;
-      color: #fff;
-      z-index: 20 !important;
+    &:not(.DayPicker-Day--disabled) {
+      &:not(.DayPicker-Day--outside) {
+        border-radius: 2px !important;
+        background-color: #f39c15 !important;
+        color: #fff;
+        z-index: 20 !important;
+      }
     }
   }
   .DayPicker-Day--selected {
     position: relative !important;
     z-index: 10 !important;
-    &:not(.DayPicker-Day--start):not(.DayPicker-Day--end):not(.DayPicker-Day--outside) {
+    &:not(.DayPicker-Day--start):not(.DayPicker-Day--end):not(.DayPicker-Day--outside):not(.DayPicker-Day--disabled) {
       background-color: transparent !important;
       &:after {
         content: "";

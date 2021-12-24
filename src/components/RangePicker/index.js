@@ -10,31 +10,27 @@ import styles from './styles.module.scss';
 import './picker.scss';
 
 
-const RangePicker = ( { date, setDate, rangeRef, setRef, nextMonth, previousMonth }) => {
+const RangePicker = (
+  {
+    date,
+    setDate,
+    rangeRef,
+    setRef,
+    nextMonth,
+    previousMonth,
+    isNavigatePossible,
+    closePicker,
+  }) => {
   const selectedDays = [date.from, { from: date.from, to: date.enteredTo }];
   const modifiers = { start: date.from, end: date.enteredTo };
   const lifeTime = moment('04.04.2017').toDate();
-
-  const isSelectingFirstDay = (from, to, day) => {
-    const isBeforeFirstDay = from && DateUtils.isDayBefore(day, from);
-    const isRangeSelected = from && to;
-    return !from || isBeforeFirstDay || isRangeSelected;
-  };
 
   const dayClick = (day, modifiers = {}) => {
     const { from, to } = date;
     if (modifiers.disabled) {
       return
     }
-    if (from && to && day >= from && day <= to) {
-      setDate({
-        from: null,
-        to: null,
-        enteredTo: null,
-      });
-      return
-    }
-    if (isSelectingFirstDay(from, to, day)) {
+    if ((from && to) || (!from && !to)) {
       setDate({
         from: day,
         to: null,
@@ -42,21 +38,21 @@ const RangePicker = ( { date, setDate, rangeRef, setRef, nextMonth, previousMont
       });
       return
     }
+    if (from && DateUtils.isDayBefore(day, from)) {
+      setDate({
+        from: day,
+        to: from,
+        enteredTo: from,
+      });
+      closePicker();
+      return
+    }
     setDate({
       from,
       to: day,
       enteredTo: day,
     });
-  };
-
-  const dayMouseEnter = (day) => {
-    const { from, to } = date;
-    if (!isSelectingFirstDay(from, to, day)) {
-      setDate({
-        ...date,
-        enteredTo: day,
-      });
-    }
+    closePicker();
   };
 
   const setToday = () => {
@@ -70,8 +66,8 @@ const RangePicker = ( { date, setDate, rangeRef, setRef, nextMonth, previousMont
   const setYesterday = () => {
     setDate({
       from: moment().subtract(1, 'days').toDate(),
-      to: moment().subtract(1, 'days').toDate(),
-      enteredTo: moment().subtract(1, 'days').toDate(),
+      to: null,
+      enteredTo: null,
     })
   };
 
@@ -81,6 +77,7 @@ const RangePicker = ( { date, setDate, rangeRef, setRef, nextMonth, previousMont
       to: moment().toDate(),
       enteredTo: moment().toDate(),
     });
+    closePicker();
   };
 
   const setLastRange = (type = 'month') => () => {
@@ -91,6 +88,7 @@ const RangePicker = ( { date, setDate, rangeRef, setRef, nextMonth, previousMont
       to: end,
       enteredTo: end,
     });
+    closePicker();
   };
 
   const setLifetime = () => {
@@ -99,14 +97,19 @@ const RangePicker = ( { date, setDate, rangeRef, setRef, nextMonth, previousMont
       to: moment().toDate(),
       enteredTo: moment().toDate(),
     });
+    closePicker();
   };
 
   const nextYear = () => {
-    rangeRef && rangeRef.showNextYear();
+    if (rangeRef && isNavigatePossible('years', false)) {
+      rangeRef.showNextYear();
+    }
   };
 
   const previousYear = () => {
-    rangeRef && rangeRef.showPreviousYear();
+    if (rangeRef && isNavigatePossible('years', true)) {
+      rangeRef.showPreviousYear();
+    }
   };
 
   return (
@@ -115,24 +118,23 @@ const RangePicker = ( { date, setDate, rangeRef, setRef, nextMonth, previousMont
         <div className={styles.picker}>
           <div className={styles.angles}>
             <div>
-              <AngleSingleLeft
-                onClick={previousMonth}
-              />
+              <AngleSingleLeft onClick={previousMonth} />
               <img onClick={previousYear} src={AngleDoubleLeft} alt="angle" />
             </div>
             <div>
-              <img onClick={nextYear} src={AngleDoubleRight} alt="angle" />
+              <img className={moment(rangeRef?.state.currentMonth).subtract(-1, "years").isBefore(Date.now()) ? 'disabledAngle' : ''} onClick={nextYear} src={AngleDoubleRight} alt="angle" />
               <img onClick={nextMonth} src={AngleSingleRight} alt="angle" />
             </div>
           </div>
           <DayPicker
             ref={ref => setRef(ref)}
+            enableOutsideDaysClick={true}
             className="range"
             selectedDays={selectedDays}
             onDayClick={(day, modifiers) => dayClick(day, modifiers)}
             modifiers={modifiers}
-            onDayMouseEnter={dayMouseEnter}
             numberOfMonths={2}
+            initialMonth={date?.from}
             disabledDays={{
               after: moment().toDate(),
               before: lifeTime,
