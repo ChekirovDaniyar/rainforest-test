@@ -131,6 +131,7 @@ const Search = () => {
                 nextMonth={nextMonth}
                 previousMonth={previousMonth}
                 setRef={setRef}
+                isNavigatePossible={isNavigatePossible}
               />
             )}
           </div>
