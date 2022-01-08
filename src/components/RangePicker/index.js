@@ -1,12 +1,12 @@
 import * as React from 'react';
 import moment from "moment";
 import DayPicker, { DateUtils } from "react-day-picker";
-import { ReactComponent as AngleSingleLeft } from '../../assets/ic_angle-left.svg'
+import AngleSingleLeft from '../../assets/ic_angle-left.svg'
 import AngleDoubleLeft from '../../assets/ic_angle_double_left.svg';
 import AngleSingleRight from '../../assets/ic_angle-right.svg'
 import AngleDoubleRight from '../../assets/ic_angle_double_right.svg';
+import { subtractDate } from "../../utils/datepicker";
 import 'react-day-picker/lib/style.css';
-import styles from './styles.module.scss';
 import './picker.scss';
 
 
@@ -15,7 +15,6 @@ const RangePicker = (
     date,
     setDate,
     rangeRef,
-    setRef,
     nextMonth,
     previousMonth,
     isNavigatePossible,
@@ -24,6 +23,9 @@ const RangePicker = (
   const selectedDays = [date.from, { from: date.from, to: date.enteredTo }];
   const modifiers = { start: date.from, end: date.enteredTo };
   const lifeTime = moment('04.04.2017').toDate();
+  const daysStr = 'days';
+  const monthStr = 'month';
+  const yearsStr = 'years';
 
   const dayClick = (day, modifiers = {}) => {
     const { from, to } = date;
@@ -65,7 +67,7 @@ const RangePicker = (
 
   const setYesterday = () => {
     setDate({
-      from: moment().subtract(1, 'days').toDate(),
+      from: subtractDate(1, daysStr, Date.now()).toDate(),
       to: null,
       enteredTo: null,
     })
@@ -73,14 +75,14 @@ const RangePicker = (
 
   const setRange = (days) => () => {
     setDate({
-      from: moment().subtract(days, 'days').toDate(),
+      from: subtractDate(days, daysStr, Date.now()).toDate(),
       to: moment().toDate(),
       enteredTo: moment().toDate(),
     });
     closePicker();
   };
 
-  const setLastRange = (type = 'month') => () => {
+  const setLastRange = (type = monthStr) => () => {
     const start = moment().startOf(type).toDate();
     const end = moment().toDate();
     setDate({
@@ -93,7 +95,7 @@ const RangePicker = (
 
   const setLifetime = () => {
     setDate({
-      from: moment('04.04.2017').toDate(),
+      from: lifeTime,
       to: moment().toDate(),
       enteredTo: moment().toDate(),
     });
@@ -101,35 +103,35 @@ const RangePicker = (
   };
 
   const nextYear = () => {
-    if (rangeRef && isNavigatePossible('years', false)) {
-      rangeRef.showNextYear();
+    if (rangeRef && isNavigatePossible(yearsStr, false)) {
+      rangeRef.current?.showNextYear();
     }
   };
 
   const previousYear = () => {
-    if (rangeRef && isNavigatePossible('years', true)) {
-      rangeRef.showPreviousYear();
+    if (rangeRef && isNavigatePossible(yearsStr, true)) {
+      rangeRef.current?.showPreviousYear();
     }
   };
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.content}>
-        <div className={styles.picker}>
-          <div className={styles.angles}>
-            <div>
-              <AngleSingleLeft onClick={previousMonth} />
+    <div className="bg-white absolute shadow-md right-0 min-w-[750px] top-[calc(100%_+_10px)]">
+      <div className="flex content-center relative max-w-[700px] relative w-full">
+        <div className="relative">
+          <div className="w-[calc(100%_-_35px)] absolute top-[22px] left-[15px] flex justify-between z-10">
+            <div className="flex">
+              <img onClick={previousMonth} src={AngleSingleLeft} alt="angle" />
               <img onClick={previousYear} src={AngleDoubleLeft} alt="angle" />
             </div>
-            <div>
-              <img className={moment(rangeRef?.state.currentMonth).subtract(-1, "years").isBefore(Date.now()) ? 'disabledAngle' : ''} onClick={nextYear} src={AngleDoubleRight} alt="angle" />
+            <div className="flex">
+              <img onClick={nextYear} src={AngleDoubleRight} alt="angle" />
               <img onClick={nextMonth} src={AngleSingleRight} alt="angle" />
             </div>
           </div>
           <DayPicker
-            ref={ref => setRef(ref)}
+            ref={rangeRef}
             enableOutsideDaysClick={true}
-            className="range"
+            className="range p-10px"
             selectedDays={selectedDays}
             onDayClick={(day, modifiers) => dayClick(day, modifiers)}
             modifiers={modifiers}
@@ -141,15 +143,15 @@ const RangePicker = (
             }}
           />
         </div>
-        <div className={styles.fastSelect}>
+        <div className="h-full border-l-1 border-#b6bbcd">
           <ul>
-            <li onClick={setToday}>Today</li>
-            <li onClick={setYesterday}>Yesterday</li>
-            <li onClick={setRange(6)}>Last 7 days</li>
-            <li onClick={setRange(29)}>Last 30 days</li>
-            <li onClick={setLastRange('month')}>Last Month</li>
-            <li onClick={setLastRange('year')}>This Year</li>
-            <li onClick={setLifetime}>Lifetime</li>
+            <li className="text-left pointer select-none py-[10px]" onClick={setToday}>Today</li>
+            <li className="text-left pointer select-none py-[10px]" onClick={setYesterday}>Yesterday</li>
+            <li className="text-left pointer select-none py-[10px]" onClick={setRange(6)}>Last 7 days</li>
+            <li className="text-left pointer select-none py-[10px]" onClick={setRange(29)}>Last 30 days</li>
+            <li className="text-left pointer select-none py-[10px]" onClick={setLastRange(monthStr)}>Last Month</li>
+            <li className="text-left pointer select-none py-[10px]" onClick={setLastRange('year')}>This Year</li>
+            <li className="text-left pointer select-none py-[10px]" onClick={setLifetime}>Lifetime</li>
           </ul>
         </div>
       </div>

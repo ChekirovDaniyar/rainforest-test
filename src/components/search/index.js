@@ -6,6 +6,7 @@ import USAIcon from '../../assets/usa.svg';
 import {ReactComponent as CalendarIcon} from '../../assets/calendar.svg';
 import {ReactComponent as AngleSingleLeft} from "../../assets/ic_angle-left.svg";
 import {ReactComponent as AngleSingleRight} from "../../assets/ic_angle-right.svg";
+import { formatDate, subtractDate, checkAfter, checkBefore } from "../../utils/datepicker";
 import styles from './styles.module.scss';
 
 
@@ -16,68 +17,69 @@ const Search = () => {
     enteredTo: null,
   });
   const [showPicker, setShowPicker] = React.useState(false);
-  const [rangeRef, setRef] = React.useState(null);
-  const intervalLength = moment(date.to).diff(date.from);
+  const rangeRef = React.useRef(null);
+  const timeDiff = moment(date.to).diff(date.from);
   const pickerWrapperRef = React.useRef(null);
+  const lifeTime =moment('04.04.2017').toDate();
+  const msInDay = 86400000;
+  const todayStr = 'Today';
+  const msStr = 'milliseconds';
+  const dayStr = 'day';
+  const monthsStr = 'months';
 
   const isNavigatePossible = (type, prev = true) => {
     const amount = prev ? 1 : -1;
-    const subtracted = moment(rangeRef?.state.currentMonth)
-      .subtract(amount, type);
+    const subtracted = subtractDate(amount, type, rangeRef.current?.state.currentMonth);
 
     return prev ?
-      subtracted.isAfter(moment('04.01.2017'))
-      : subtracted.isBefore(Date.now());
+      checkAfter(subtracted, lifeTime)
+      : checkBefore(subtracted, Date.now());
   };
 
   const nextMonth = () => {
-    if (rangeRef && isNavigatePossible('months', false)) {
-      rangeRef.showNextMonth();
+    if (rangeRef && isNavigatePossible(monthsStr, false)) {
+      rangeRef.current?.showNextMonth();
     }
   };
 
   const previousMonth = () => {
-    if (rangeRef && isNavigatePossible('months', true)) {
-      rangeRef.showPreviousMonth();
+    if (rangeRef && isNavigatePossible(monthsStr, true)) {
+      rangeRef.current?.showPreviousMonth();
     }
   };
 
   const backForward = (decrement = true) => {
     if (date.from) {
-      const msInDay = 86400000;
-      const newFrom = moment(date.from)
-        .subtract(decrement ? intervalLength || msInDay : -intervalLength || -msInDay, 'milliseconds')
-        .toDate();
-      const newTo = moment(date.to)
-        .subtract(decrement ? intervalLength || msInDay : -intervalLength || -msInDay, 'milliseconds')
-        .toDate()
-      if (moment(newTo).isBefore(Date.now()) && moment(newFrom).isAfter(moment('04.04.2017').toDate())) {
+      const time = (timeDiff || msInDay) * (decrement ? 1 : -1);
+      const newFrom = subtractDate(time, msStr, date.from).toDate();
+      const newTo = subtractDate(time, msStr, date.to).toDate();
+
+      if (checkBefore(newTo, Date.now()) && checkAfter(newFrom, lifeTime)) {
         setDate({
           from: newFrom,
           to: newTo,
-          enteredTo: moment(date.to).subtract(decrement ? intervalLength : -intervalLength, 'milliseconds').toDate(),
+          enteredTo: newTo,
         });
       }
     }
   };
 
   const showDate = () => {
-    if (!date.from && !date.to) return 'Today';
+    if (!date.from && !date.to) return todayStr;
     if (date.from && date.to && moment(date.from).isSame(date.to)) {
-      if (moment(date.from).isSame(Date.now(), 'day')) {
-        return 'Today';
+      if (moment(date.from).isSame(Date.now(), dayStr)) {
+        return todayStr;
       } else {
-        return moment(date.from).format('MMM DD, YYYY');
+        return formatDate(date.from);
       }
     }
-    return `${moment(date.from).format('MMM DD, YYYY')} 
-    ${date.to ? ' - ' + moment(date.to).format('MMM DD, YYYY') : ''}`;
+    return `${formatDate(date.from)}${date.to ? ' - ' + formatDate(date.to) : ''}`;
   };
 
   const outsideClicker = ({ target }) => {
     if (pickerWrapperRef?.current
       && !pickerWrapperRef.current.contains(target)
-      && !rangeRef?.dayPicker?.contains(target)) {
+      && !rangeRef.current?.dayPicker.contains(target)) {
       setShowPicker(false);
     }
   };
@@ -90,36 +92,35 @@ const Search = () => {
   }, []);
 
   return (
-    <div className={styles.wrapper}>
+    <div className="px-10 bg-white">
       <div className="container">
-        <div className={styles.content}>
-          <div className={styles.inputWrapper}>
-            <img src={USAIcon} alt="usa"/>
+        <div className="flex content-between w-full">
+          <div className="flex flex-1">
+            <img className="w-7 mr-10" src={USAIcon} alt="usa"/>
             <input
+              className="w-full h-full border-none outline-none"
               type="text"
               placeholder="Search by Brand, Product, SKU, ASIN"
             />
           </div>
-          <div className={styles.date} ref={pickerWrapperRef}>
-            <CalendarIcon/>
-            <span onClick={() => setShowPicker(!showPicker)}>
+          <div className="flex items-center cursor-pointer relative" ref={pickerWrapperRef}>
+            <CalendarIcon className="w-5 mr-3 fill-#b7bbcd"/>
+            <span className="block mr-15" onClick={() => setShowPicker(!showPicker)}>
               {showDate()}
             </span>
-            <div>
+            <div className="flex">
               <AngleSingleLeft
                 className={
                   !date.from ||
-                  !moment(date.from)
-                    .subtract(intervalLength, 'milliseconds')
-                    .isAfter(moment('04.04.2017').toDate()) ? styles.disabledAngle : ''
+                    !checkAfter(subtractDate(timeDiff, msStr, date.from), lifeTime)
+                      ? 'fill-#b7bbcd' : ''
                 }
                 onClick={() => backForward(true)}
               />
               <AngleSingleRight
                 className={!date.to ||
-                !moment(date.to)
-                  .subtract(-intervalLength, 'milliseconds')
-                  .isBefore(Date.now()) ? styles.disabledAngle : ''}
+                  !checkBefore(subtractDate(-timeDiff, msStr, date.to), Date.now())
+                    ? 'fill-#b7bbcd' : ''}
                 onClick={() => backForward(false)}
               />
             </div>
@@ -130,8 +131,8 @@ const Search = () => {
                 rangeRef={rangeRef}
                 nextMonth={nextMonth}
                 previousMonth={previousMonth}
-                setRef={setRef}
                 isNavigatePossible={isNavigatePossible}
+                closePicker={() => setShowPicker(false)}
               />
             )}
           </div>
