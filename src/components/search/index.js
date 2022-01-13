@@ -3,11 +3,9 @@ import RangePicker from "../RangePicker";
 import moment from "moment";
 
 import USAIcon from '../../assets/usa.svg';
-import {ReactComponent as CalendarIcon} from '../../assets/calendar.svg';
-import {ReactComponent as AngleSingleLeft} from "../../assets/ic_angle-left.svg";
-import {ReactComponent as AngleSingleRight} from "../../assets/ic_angle-right.svg";
+import { ReactComponent as CalendarIcon } from '../../assets/calendar.svg';
 import { formatDate, subtractDate, checkAfter, checkBefore } from "../../utils/datepicker";
-import styles from './styles.module.scss';
+import { AngleLeft, AngleRight } from "../angles";
 
 
 const Search = () => {
@@ -48,7 +46,7 @@ const Search = () => {
     }
   };
 
-  const backForward = (decrement = true) => {
+  const shiftDate = (decrement = true) => {
     if (date.from) {
       const time = (timeDiff || msInDay) * (decrement ? 1 : -1);
       const newFrom = subtractDate(time, msStr, date.from).toDate();
@@ -104,24 +102,18 @@ const Search = () => {
             />
           </div>
           <div className="flex items-center cursor-pointer relative" ref={pickerWrapperRef}>
-            <CalendarIcon className="w-5 mr-3 fill-#b7bbcd"/>
+            <CalendarIcon className="w-5 mr-3"/>
             <span className="block mr-15" onClick={() => setShowPicker(!showPicker)}>
               {showDate()}
             </span>
             <div className="flex">
-              <AngleSingleLeft
-                className={
-                  !date.from ||
-                    !checkAfter(subtractDate(timeDiff, msStr, date.from), lifeTime)
-                      ? 'fill-#b7bbcd' : ''
-                }
-                onClick={() => backForward(true)}
+              <AngleLeft
+                disabled={!date.from || !checkAfter(subtractDate(timeDiff, msStr, date.from), lifeTime)}
+                onClick={() => shiftDate(true)}
               />
-              <AngleSingleRight
-                className={!date.to ||
-                  !checkBefore(subtractDate(-timeDiff, msStr, date.to), Date.now())
-                    ? 'fill-#b7bbcd' : ''}
-                onClick={() => backForward(false)}
+              <AngleRight
+                disabled={!checkBefore(subtractDate(-timeDiff, msStr, date.to), Date.now())}
+                onClick={() => shiftDate(false)}
               />
             </div>
             {showPicker && (

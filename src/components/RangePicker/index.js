@@ -1,10 +1,10 @@
 import * as React from 'react';
 import moment from "moment";
 import DayPicker, { DateUtils } from "react-day-picker";
-import AngleSingleLeft from '../../assets/ic_angle-left.svg'
+
 import AngleDoubleLeft from '../../assets/ic_angle_double_left.svg';
-import AngleSingleRight from '../../assets/ic_angle-right.svg'
 import AngleDoubleRight from '../../assets/ic_angle_double_right.svg';
+import { AngleLeft, AngleRight } from "../angles";
 import { subtractDate } from "../../utils/datepicker";
 import 'react-day-picker/lib/style.css';
 import './picker.scss';
@@ -26,6 +26,7 @@ const RangePicker = (
   const daysStr = 'days';
   const monthStr = 'month';
   const yearsStr = 'years';
+  const selectRangeClassnames = 'text-left pointer select-none py-[10px]';
 
   const dayClick = (day, modifiers = {}) => {
     const { from, to } = date;
@@ -115,23 +116,25 @@ const RangePicker = (
   };
 
   return (
-    <div className="bg-white absolute shadow-md right-0 min-w-[750px] top-[calc(100%_+_10px)]">
+    <div className="bg-white absolute shadow-md right-0 min-w-[750px] top-[110%]">
       <div className="flex content-center relative max-w-[700px] relative w-full">
         <div className="relative">
-          <div className="w-[calc(100%_-_35px)] absolute top-[22px] left-[15px] flex justify-between z-10">
+
+          <div className="w-11/12 absolute top-6 left-5 flex justify-between z-10">
             <div className="flex">
-              <img onClick={previousMonth} src={AngleSingleLeft} alt="angle" />
+              <AngleLeft onClick={previousMonth} />
               <img onClick={previousYear} src={AngleDoubleLeft} alt="angle" />
             </div>
             <div className="flex">
+              <AngleRight onClick={nextMonth} />
               <img onClick={nextYear} src={AngleDoubleRight} alt="angle" />
-              <img onClick={nextMonth} src={AngleSingleRight} alt="angle" />
             </div>
           </div>
+
           <DayPicker
             ref={rangeRef}
             enableOutsideDaysClick={true}
-            className="range p-10px"
+            className="range p-0.8"
             selectedDays={selectedDays}
             onDayClick={(day, modifiers) => dayClick(day, modifiers)}
             modifiers={modifiers}
@@ -142,16 +145,18 @@ const RangePicker = (
               before: lifeTime,
             }}
           />
+
         </div>
+
         <div className="h-full border-l-1 border-#b6bbcd">
           <ul>
-            <li className="text-left pointer select-none py-[10px]" onClick={setToday}>Today</li>
-            <li className="text-left pointer select-none py-[10px]" onClick={setYesterday}>Yesterday</li>
-            <li className="text-left pointer select-none py-[10px]" onClick={setRange(6)}>Last 7 days</li>
-            <li className="text-left pointer select-none py-[10px]" onClick={setRange(29)}>Last 30 days</li>
-            <li className="text-left pointer select-none py-[10px]" onClick={setLastRange(monthStr)}>Last Month</li>
-            <li className="text-left pointer select-none py-[10px]" onClick={setLastRange('year')}>This Year</li>
-            <li className="text-left pointer select-none py-[10px]" onClick={setLifetime}>Lifetime</li>
+            <li className={selectRangeClassnames} onClick={setToday}>Today</li>
+            <li className={selectRangeClassnames} onClick={setYesterday}>Yesterday</li>
+            <li className={selectRangeClassnames} onClick={setRange(6)}>Last 7 days</li>
+            <li className={selectRangeClassnames} onClick={setRange(29)}>Last 30 days</li>
+            <li className={selectRangeClassnames} onClick={setLastRange(monthStr)}>Last Month</li>
+            <li className={selectRangeClassnames} onClick={setLastRange('year')}>This Year</li>
+            <li className={selectRangeClassnames} onClick={setLifetime}>Lifetime</li>
           </ul>
         </div>
       </div>
